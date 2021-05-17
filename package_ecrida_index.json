@@ -1,0 +1,32 @@
+{
+    "packages": [
+        {
+            "maintainer": "Project ECRIDA",
+            "websiteURL": "https://ecrida-rexus.github.io/",
+            "platforms": [
+                {
+                    "category": "ecrida",
+                    "name": "ECRIDA",
+                    "url": "https://github.com/ecrida-rexus/board/releases/download/1.0.0/ecrida-1.0.0.zip",
+                    "archiveFileName": "ecrida-1.0.0.zip",
+                    "checksum": "SHA-256:4d3618c25c052719d2e93003b07c8e35b2b7a9e2ad87f8558e0f4a84b4bb9c4a",
+                    "help": {
+                        "online": ""
+                    },
+                    "version": "1.0.0",
+                    "architecture": "avr",
+                    "boards": [
+                        {
+                            "name": "ECRIDA 2560"
+                        }
+                    ],
+                    "toolsDependencies": [],
+                    "size": "5348"
+                }
+            ],
+            "tools": [],
+            "email": "ecrida.rexus@gmail.com",
+            "name": "ecrida"
+        }
+    ]
+}
