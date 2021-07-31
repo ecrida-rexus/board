@@ -36,9 +36,9 @@
 #define PIN_SPI_SCK   (52)
 
 // experiment micro-controller pin definitions
-#define PIN_EXP_RED				(24)
-#define PIN_EXP_GREEN			(23)
-#define PIN_EXP_BLUE			(22)
+#define PIN_EXP_RED				(22)
+#define PIN_EXP_GREEN			(24)
+#define PIN_EXP_BLUE			(23)
 #define PIN_DATAUC_RESET		(6)
 #define PIN_MOTOR_STEP			(3)
 #define PIN_MOTOR_DIR			(2)
@@ -83,6 +83,7 @@ static const uint8_t DATA_RED		= PIN_DATA_RED;
 static const uint8_t DATA_GREEN		= PIN_DATA_GREEN;
 static const uint8_t DATA_BLUE		= PIN_DATA_BLUE;
 
+#define DEBUG (Serial)
 #define RXSM (Serial1)
 #define INTER_UC (Serial2)
 
