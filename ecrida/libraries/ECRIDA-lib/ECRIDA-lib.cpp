@@ -1,4 +1,4 @@
-#include "ecrida_lib.hpp"
+#include "ECRIDA-lib.hpp"
 
 void ECRIDA_EXP_setup_gpio() {
     DEBUG.begin(115200);
