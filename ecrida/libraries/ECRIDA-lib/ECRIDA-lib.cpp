@@ -45,11 +45,11 @@ ISR(TIMER1_COMPA_vect) {
     }
 }
 
-void ECRIDA_EXP_motor_turn_on() {
+void ECRIDA_EXP_motor_turn_on(uint8_t current) {
     TMC2130.begin();
     TMC2130.vsense(false);
-    TMC2130.irun(HOMING_CURRENT);
-    TMC2130.ihold(HOMING_CURRENT);
+    TMC2130.irun(current);
+    TMC2130.ihold(current);
     TMC2130.microsteps(256);
     TMC2130.en_pwm_mode(true);
 
@@ -98,5 +98,5 @@ void ECRIDA_EXP_raise_buildplate(double dist_mm) {
     move_motor(dist_mm);
 }
 
-void ECRIDA_EXP_UV_on(int pin) { analogWrite(pin, UV_POWER); }
+void ECRIDA_EXP_UV_on(int pin, uint8_t pwm) { analogWrite(pin, pwm); }
 void ECRIDA_EXP_UV_off(int pin) { analogWrite(pin, 0); }
