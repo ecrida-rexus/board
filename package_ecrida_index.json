@@ -41,6 +41,25 @@
                     ],
                     "toolsDependencies": [],
                     "size": "5358"
+                },
+                {
+                    "category": "ecrida",
+                    "name": "ECRIDA",
+                    "url": "https://github.com/ecrida-rexus/board/releases/download/1.0.2/ecrida-1.0.2.zip",
+                    "archiveFileName": "ecrida-1.0.2.zip",
+                    "checksum": "SHA-256:200a7f30400580570d99f296c13d3cfc9aa2253dd7971ebe7ca8feebd0fe1739",
+                    "help": {
+                        "online": ""
+                    },
+                    "version": "1.0.2",
+                    "architecture": "avr",
+                    "boards": [
+                        {
+                            "name": "ECRIDA 2560"
+                        }
+                    ],
+                    "toolsDependencies": [],
+                    "size": "8018"
                 }
             ],
             "tools": [],
