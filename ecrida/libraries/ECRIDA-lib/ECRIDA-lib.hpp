@@ -12,7 +12,7 @@ typedef struct {
     float temperatures[4];
     uint16_t uv_current[2];
     uint32_t crc;
-} ECRIDA_telementry_t;
+} ECRIDA_telemetry_t;
 #pragma pack(pop)
 
 #define BUILDPLATE_UP 0
