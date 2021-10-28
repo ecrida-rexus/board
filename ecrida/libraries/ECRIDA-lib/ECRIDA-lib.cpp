@@ -104,3 +104,19 @@ void ECRIDA_EXP_raise_buildplate(double dist_mm, double rotationsPerSecond) {
 
 void ECRIDA_EXP_UV_on(int pin, uint8_t pwm) { analogWrite(pin, pwm); }
 void ECRIDA_EXP_UV_off(int pin) { analogWrite(pin, 0); }
+
+uint32_t checksum(uint8_t *data, uint32_t length) {
+    uint32_t crc = 0xFFFFFFFF;
+
+    for (size_t i = 0; i < length; i++) {
+        char ch = data[i];
+        for (size_t j = 0; j < 8; j++) {
+            uint32_t b = (ch ^ crc) & 1;
+            crc >>= 1;
+            if (b) crc = crc ^ 0xEDB88320;
+            ch >>= 1;
+        }
+    }
+
+    return ~crc;
+}

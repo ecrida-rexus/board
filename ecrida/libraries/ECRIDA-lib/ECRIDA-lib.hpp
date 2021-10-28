@@ -21,7 +21,8 @@ typedef struct {
 #define BACKLIGHT_1 (BACKLIGHT_1_DIM)
 #define BACKLIGHT_2 (BACKLIGHT_2_DIM)
 
-#define MOTOR_STEPS_FULL_REVOLUTION (100)
+#define MOTOR_STEPS_FULL_REVOLUTION (100)  // faulhaber motor
+//#define MOTOR_STEPS_FULL_REVOLUTION (200)  // robofun motor
 
 extern TMC2130Stepper TMC2130;
 
@@ -41,8 +42,6 @@ void ECRIDA_EXP_raise_buildplate(double dist_mm, double rotationsPerSecond);
 void ECRIDA_EXP_UV_on(int pin, uint8_t pwm);
 void ECRIDA_EXP_UV_off(int pin);
 
-uint32_t checksumCalculator(uint8_t *data, uint32_t length);
-void readSensors(ECRIDA_telementry_t *data_package, uint8_t state);
-void sendTelemetry(ECRIDA_telementry_t *data_package);
+uint32_t checksum(uint8_t *data, uint32_t length);
 
 #endif
