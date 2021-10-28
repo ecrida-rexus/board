@@ -45,7 +45,7 @@ ISR(TIMER1_COMPA_vect) {
     }
 }
 
-void ECRIDA_EXP_motor_turn_on(uint8_t current) {
+void ECRIDA_EXP_motor_turn_on(ECRIDA_CURRENT current) {
     TMC2130.begin();
     TMC2130.vsense(false);
     TMC2130.irun(current);
@@ -59,9 +59,9 @@ void ECRIDA_EXP_motor_turn_on(uint8_t current) {
         TCCR1A = 0;
         TCCR1B = 0;
         TCNT1 = 0;
-        OCR1A = 39;  // 1 000 000 / (MOTOR_STEPS_FULL_REVOLUTION steps/rotation * 256 microsteps)
+        OCR1A = 8000000.0 / (MOTOR_STEPS_FULL_REVOLUTION * 256.0);
 
-        TCCR1B |= (1 << WGM12) | (1 << CS11);
+        TCCR1B |= (1 << WGM12) | (1 << CS10);
 
         sei();
     }
@@ -77,7 +77,7 @@ void ECRIDA_EXP_motor_turn_off() {
 
 void move_motor(double dist_mm) {
     // one full screw revolution raises the buildplate by 1.5mm
-    steps = dist_mm * 256 * MOTOR_STEPS_FULL_REVOLUTION / 1.5f;
+    steps = dist_mm * 256.0 * MOTOR_STEPS_FULL_REVOLUTION / 1.5f;
 
     TIMSK1 |= (1 << OCIE1A);  // start timer
     while (steps > 0) {
@@ -86,14 +86,18 @@ void move_motor(double dist_mm) {
     TIMSK1 &= ~(1 << OCIE1A);  // stop timer
 }
 
-void ECRIDA_EXP_lower_buildplate(double dist_mm) {
+void ECRIDA_EXP_lower_buildplate(double dist_mm, double rotationsPerSecond) {
     TMC2130.shaft_dir(BUILDPLATE_DOWN);
+
+    OCR1A = 8000000.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION * 256.0);
 
     move_motor(dist_mm);
 }
 
-void ECRIDA_EXP_raise_buildplate(double dist_mm) {
+void ECRIDA_EXP_raise_buildplate(double dist_mm, double rotationsPerSecond) {
     TMC2130.shaft_dir(BUILDPLATE_UP);
+
+    OCR1A = 8000000.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION * 256.0);
 
     move_motor(dist_mm);
 }
