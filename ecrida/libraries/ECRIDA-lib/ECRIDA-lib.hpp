@@ -15,14 +15,14 @@ typedef struct {
 } ECRIDA_telemetry_t;
 #pragma pack(pop)
 
-#define BUILDPLATE_UP 0
-#define BUILDPLATE_DOWN 1
+#define BUILDPLATE_UP 1
+#define BUILDPLATE_DOWN 0
 
 #define BACKLIGHT_1 (BACKLIGHT_1_DIM)
 #define BACKLIGHT_2 (BACKLIGHT_2_DIM)
 
-#define MOTOR_STEPS_FULL_REVOLUTION (100)  // faulhaber motor
-//#define MOTOR_STEPS_FULL_REVOLUTION (200)  // robofun motor
+// #define MOTOR_STEPS_FULL_REVOLUTION (100)  // faulhaber motor
+#define MOTOR_STEPS_FULL_REVOLUTION (200)  // robofun motor
 
 extern TMC2130Stepper TMC2130;
 
