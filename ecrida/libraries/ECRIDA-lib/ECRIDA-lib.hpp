@@ -36,6 +36,7 @@ typedef struct {
 
 #pragma pack(push, 1)
 typedef struct {
+    uint8_t power_cycles;
     uint8_t exposed_layers;
     enum EXPERIMENT_STATES experiment_state : 4;
     bool sods : 1;
