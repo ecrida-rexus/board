@@ -10,6 +10,9 @@ void ECRIDA_EXP_setup_gpio() {
     pinMode(EXP_GREEN, OUTPUT);
     pinMode(EXP_RED, OUTPUT);
 
+    pinMode(PIN_DATAUC_RESET, OUTPUT);
+    digitalWrite(PIN_DATAUC_RESET, HIGH);
+
     // setup RXSM signals
     pinMode(LO, INPUT);
     pinMode(SODS, INPUT);
@@ -32,6 +35,34 @@ void ECRIDA_EXP_setup_gpio() {
     // turn off UV LEDs
     analogWrite(BACKLIGHT_1_DIM, 0);
     analogWrite(BACKLIGHT_2_DIM, 0);
+
+    vat_sensors.setWaitForConversion(false);
+    vat_sensors.setAutoSaveScratchPad(false);
+    vat_sensors.setResolution(12);
+
+    {
+        cli();
+
+        TCCR1A = 0;
+        TCCR1B = 0;
+        TCCR3A = 0;
+        TCCR3B = 0;
+        TCNT1 = 0;
+        TCNT3 = 0;
+        OCR1A = 0xFFFF;
+        OCR3A = 0xFFFF;
+
+        TCCR1B |= (1 << WGM12) | (1 << CS10);                // no prescaler
+        TCCR3B |= (1 << WGM32) | (1 << CS32) | (1 << CS30);  // 1024 prescaler
+
+        sei();
+    }
+}
+
+void ECRIDA_EXP_reset_datauc() {
+    digitalWrite(PIN_DATAUC_RESET, LOW);
+    delay(1);
+    digitalWrite(PIN_DATAUC_RESET, HIGH);
 }
 
 volatile uint32_t steps;
@@ -42,29 +73,29 @@ ISR(TIMER1_COMPA_vect) {
         PORTE &= ~(1 << 5);
 
         steps--;
+
+        if (steps == 0) {
+            TIMSK1 &= ~(1 << OCIE1A);  // stop timer
+        }
     }
 }
 
-void ECRIDA_EXP_motor_turn_on(ECRIDA_CURRENT current) {
+volatile bool ECRIDA_UV_active;
+volatile int active_uv_pin;
+ISR(TIMER3_COMPA_vect) {
+    digitalWrite(active_uv_pin, 0);
+
+    ECRIDA_UV_active = false;
+    TIMSK3 &= ~(1 << OCIE3A);  // stop timer
+}
+
+void ECRIDA_EXP_motor_turn_on(uint8_t current) {
     TMC2130.begin();
     TMC2130.vsense(false);
     TMC2130.irun(current);
     TMC2130.ihold(current);
     TMC2130.microsteps(256);
     TMC2130.en_pwm_mode(true);
-
-    {
-        cli();
-
-        TCCR1A = 0;
-        TCCR1B = 0;
-        TCNT1 = 0;
-        OCR1A = 8000000.0 / (MOTOR_STEPS_FULL_REVOLUTION * 256.0);
-
-        TCCR1B |= (1 << WGM12) | (1 << CS10);
-
-        sei();
-    }
 
     // MOTOR_DRV_EN is inverted
     digitalWrite(MOTOR_DRV_EN, LOW);
@@ -80,10 +111,12 @@ void move_motor(double dist_mm) {
     steps = dist_mm * 256.0 * MOTOR_STEPS_FULL_REVOLUTION / 1.5f;
 
     TIMSK1 |= (1 << OCIE1A);  // start timer
+}
+
+void ECRIDA_EXP_wait_motor() {
     while (steps > 0) {
         delay(10);
     }
-    TIMSK1 &= ~(1 << OCIE1A);  // stop timer
 }
 
 void ECRIDA_EXP_lower_buildplate(double dist_mm, double rotationsPerSecond) {
@@ -102,8 +135,22 @@ void ECRIDA_EXP_raise_buildplate(double dist_mm, double rotationsPerSecond) {
     move_motor(dist_mm);
 }
 
-void ECRIDA_EXP_UV_on(int pin, uint8_t pwm) { analogWrite(pin, pwm); }
-void ECRIDA_EXP_UV_off(int pin) { analogWrite(pin, 0); }
+void ECRIDA_EXP_UV_on(int pin, uint16_t ms) {
+    ECRIDA_UV_active = true;
+    active_uv_pin = pin;
+    digitalWrite(pin, 1);
+
+    OCR3A = 7.8125 * ms;      // 8000000.0 / 1024
+    TIMSK3 |= (1 << OCIE3A);  // start timer
+}
+
+int16_t getTempByIndex(uint8_t deviceIndex) {
+    DeviceAddress deviceAddress;
+    if (!vat_sensors.getAddress(deviceAddress, deviceIndex)) {
+        return DEVICE_DISCONNECTED_C;
+    }
+    return vat_sensors.getTemp((uint8_t *)deviceAddress);
+}
 
 uint32_t checksum(uint8_t *data, uint32_t length) {
     uint32_t crc = 0xFFFFFFFF;
