@@ -1,7 +1,7 @@
-#include "ECRIDA-lib.hpp"
+#include "ECRIDA-lib-exp.hpp"
 
 void ECRIDA_EXP_setup_gpio() {
-    DEBUG.begin(115200);
+    DEBUG.begin(38400);
     RXSM.begin(38400);
     INTER_UC.begin(38400);
 

@@ -1,5 +1,5 @@
-#ifndef _ECRIDA_LIB_H_
-#define _ECRIDA_LIB_H_
+#ifndef _ECRIDA_LIB_EXP_H_
+#define _ECRIDA_LIB_EXP_H_
 
 #define REQUIRESALARMS false
 
@@ -86,6 +86,7 @@ void ECRIDA_EXP_wait_motor();
 void ECRIDA_EXP_UV_on(int pin, uint16_t ms);
 
 int16_t getTempByIndex(uint8_t deviceIndex);
+
 uint32_t checksum(uint8_t* data, uint32_t length);
 
 #endif
