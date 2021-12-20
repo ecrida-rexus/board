@@ -1,5 +1,24 @@
 #include "ECRIDA-lib-exp.hpp"
 
+inline void setup_timer1() {
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1 = 0;
+    OCR1A = 0xFFFF;
+
+    TIFR1 |= (1 << OCF1A);
+    TCCR1B |= (1 << WGM12) | (1 << CS10);  // no prescaler
+}
+inline void setup_timer3() {
+    TCCR3A = 0;
+    TCCR3B = 0;
+    TCNT3 = 0;
+    OCR3A = 0xFFFF;
+
+    TIFR3 |= (1 << OCF3A);
+    TCCR3B |= (1 << WGM32) | (1 << CS32) | (1 << CS30);  // 1024 prescaler
+}
+
 void ECRIDA_EXP_setup_gpio() {
     DEBUG.begin(38400);
     RXSM.begin(38400);
@@ -43,17 +62,8 @@ void ECRIDA_EXP_setup_gpio() {
     {
         cli();
 
-        TCCR1A = 0;
-        TCCR1B = 0;
-        TCCR3A = 0;
-        TCCR3B = 0;
-        TCNT1 = 0;
-        TCNT3 = 0;
-        OCR1A = 0xFFFF;
-        OCR3A = 0xFFFF;
-
-        TCCR1B |= (1 << WGM12) | (1 << CS10);                // no prescaler
-        TCCR3B |= (1 << WGM32) | (1 << CS32) | (1 << CS30);  // 1024 prescaler
+        setup_timer1();
+        setup_timer3();
 
         sei();
     }
@@ -106,9 +116,13 @@ void ECRIDA_EXP_motor_turn_off() {
     digitalWrite(MOTOR_DRV_EN, HIGH);
 }
 
-void move_motor(double dist_mm) {
+void move_motor(double dist_mm, double rotationsPerSecond) {
     // one full screw revolution raises the buildplate by 1.5mm
     steps = dist_mm * 256.0 * MOTOR_STEPS_FULL_REVOLUTION / 1.5f;
+
+    setup_timer1();
+    // OCR1A = 8000000.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION * 256.0);
+    OCR1A = 31250.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION);
 
     TIMSK1 |= (1 << OCIE1A);  // start timer
 }
@@ -122,25 +136,24 @@ void ECRIDA_EXP_wait_motor() {
 void ECRIDA_EXP_lower_buildplate(double dist_mm, double rotationsPerSecond) {
     TMC2130.shaft_dir(BUILDPLATE_DOWN);
 
-    OCR1A = 8000000.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION * 256.0);
-
-    move_motor(dist_mm);
+    move_motor(dist_mm, rotationsPerSecond);
 }
 
 void ECRIDA_EXP_raise_buildplate(double dist_mm, double rotationsPerSecond) {
     TMC2130.shaft_dir(BUILDPLATE_UP);
 
-    OCR1A = 8000000.0 / (rotationsPerSecond * MOTOR_STEPS_FULL_REVOLUTION * 256.0);
-
-    move_motor(dist_mm);
+    move_motor(dist_mm, rotationsPerSecond);
 }
 
 void ECRIDA_EXP_UV_on(int pin, uint16_t ms) {
     ECRIDA_UV_active = true;
     active_uv_pin = pin;
+    digitalWrite(pin == BACKLIGHT_1_DIM ? BACKLIGHT_2_DIM : BACKLIGHT_1_DIM, 0);
     digitalWrite(pin, 1);
 
-    OCR3A = 7.8125 * ms;      // 8000000.0 / 1024
+    setup_timer3();
+    // OCR3A = 8000000.0 / 1024.0 * (ms / 1000.0);
+    OCR3A = 7.8125 * ms;
     TIMSK3 |= (1 << OCIE3A);  // start timer
 }
 
