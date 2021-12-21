@@ -24,11 +24,12 @@ typedef struct {
     uint16_t sync;
     uint32_t message_timestamp : 24;
     enum EXPERIMENT_STATES state : 4;
-    uint8_t soe : 1;
-    uint8_t sods : 1;
-    uint8_t lo : 1;
+    bool sods : 1;
+    bool lo : 1;
+    bool soe : 1;
     uint8_t uv_string_used : 1;
     int16_t temperatures[4];
+    int16_t pcb_temperature;
     uint16_t uv_current;
     uint32_t crc;
 } ECRIDA_telemetry_t;
@@ -53,8 +54,8 @@ typedef struct {
     int16_t temperature[4];
 } ECRIDA_EEPROM_temperature_t;
 
-#define BUILDPLATE_UP 1
-#define BUILDPLATE_DOWN 0
+#define BUILDPLATE_UP 0
+#define BUILDPLATE_DOWN 1
 
 #define BACKLIGHT_1 (BACKLIGHT_1_DIM)
 #define BACKLIGHT_2 (BACKLIGHT_2_DIM)
