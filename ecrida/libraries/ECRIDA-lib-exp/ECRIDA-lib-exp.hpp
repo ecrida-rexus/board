@@ -44,6 +44,7 @@ typedef struct {
     bool lo : 1;
     bool soe : 1;
     uint8_t uv_string_used : 1;
+    bool write_to_eeprom : 1;
     uint8_t soe_timeout;
     uint16_t eeprom_temperatures;
 } ECRIDA_status_t;
